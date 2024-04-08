@@ -49,9 +49,7 @@ pub trait SplitArray<const LEN: usize> {
     where
         (): True<{ LEFT <= LEN }>;
 
-    /// Split an array reference
-    /// into a reference to the left half and a reference to the right half.
-    /// The sizes of the halves are validated at compile time.
+    /// Mutable version of [`Self::split_arr`]
     fn split_arr_mut<const LEFT: usize>(
         &mut self,
     ) -> (&mut Self::Output<LEFT>, &mut Self::Output<{ LEN - LEFT }>)
@@ -59,7 +57,7 @@ pub trait SplitArray<const LEN: usize> {
         (): True<{ LEFT <= LEN }>;
 }
 
-/// Split array pointers in two with compile-time size validation.
+/// Raw version of [`SplitArray`].
 pub trait SplitArrayRaw<const LEN: usize> {
     /// The result of a split.
     type Output<const OUT_SIZE: usize>: SplitArrayRaw<OUT_SIZE>;
@@ -77,7 +75,7 @@ pub trait SplitArrayRaw<const LEN: usize> {
         (): True<{ LEFT <= LEN }>;
 }
 
-/// Split array pointers in two with compile-time size validation.
+/// Raw mutable version of [`SplitArray`].
 pub trait SplitArrayRawMut<const LEN: usize> {
     type Output<const OUT_SIZE: usize>: SplitArrayRawMut<OUT_SIZE>;
 
@@ -140,22 +138,6 @@ impl<T, const LEN: usize> SplitArrayRawMut<LEN> for *mut [T; LEN] {
 /// into a reference to the left half and a reference to the right half.
 /// The sizes of the halves are validated at compile time.
 #[inline]
-pub fn split_arr_mut<const LEFT: usize, const N: usize, T>(
-    arr: &mut [T; N],
-) -> (&mut [T; LEFT], &mut [T; N - LEFT])
-where
-    (): True<{ LEFT <= N }>,
-{
-    unsafe {
-        let (left, right) = split_arr_raw_mut(arr);
-        (&mut *left, &mut *right)
-    }
-}
-
-/// Split an array reference
-/// into a reference to the left half and a reference to the right half.
-/// The sizes of the halves are validated at compile time.
-#[inline]
 pub const fn split_arr<const LEFT: usize, const N: usize, T>(
     arr: &[T; N],
 ) -> (&[T; LEFT], &[T; N - LEFT])
@@ -168,28 +150,21 @@ where
     }
 }
 
-/// Split an array pointer
-/// into a pointer to the left half and a pointer to the right half.
-/// The sizes of the halves are validated at compile time.
-///
-/// # Safety
-/// `arr` must be valid.
+/// Mutable version of [`split_arr`].
 #[inline]
-pub const unsafe fn split_arr_raw_mut<const LEFT: usize, const N: usize, T>(
-    arr: *mut [T; N],
-) -> (*mut [T; LEFT], *mut [T; N - LEFT])
+pub fn split_arr_mut<const LEFT: usize, const N: usize, T>(
+    arr: &mut [T; N],
+) -> (&mut [T; LEFT], &mut [T; N - LEFT])
 where
     (): True<{ LEFT <= N }>,
 {
-    let left = arr as *mut T;
-    let right = unsafe { left.add(LEFT) };
-
-    (left.cast(), right.cast())
+    unsafe {
+        let (left, right) = split_arr_raw_mut(arr);
+        (&mut *left, &mut *right)
+    }
 }
 
-/// Split an array pointer
-/// into a pointer to the left half and a pointer to the right half.
-/// The sizes of the halves are validated at compile time.
+/// Raw version of [`split_arr`].
 ///
 /// # Safety
 /// `arr` must be valid.
@@ -201,6 +176,23 @@ where
     (): True<{ LEFT <= N }>,
 {
     let left = arr.cast::<T>();
+    let right = unsafe { left.add(LEFT) };
+
+    (left.cast(), right.cast())
+}
+
+/// Raw version of [`split_arr_mut`].
+///
+/// # Safety
+/// `arr` must be valid.
+#[inline]
+pub const unsafe fn split_arr_raw_mut<const LEFT: usize, const N: usize, T>(
+    arr: *mut [T; N],
+) -> (*mut [T; LEFT], *mut [T; N - LEFT])
+where
+    (): True<{ LEFT <= N }>,
+{
+    let left = arr as *mut T;
     let right = unsafe { left.add(LEFT) };
 
     (left.cast(), right.cast())
