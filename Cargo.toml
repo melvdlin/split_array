@@ -2,6 +2,12 @@
 name = "split_array"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.79.0"
+description = "Split array references in two with compile-time size validation."
+license = "MIT"
+documentation = "https://docs.rs/split_array"
+categories = ["no-std", "no-std::no-alloc"]
+keywords = ["array", "split", "compile-time", "validation"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
