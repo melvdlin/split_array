@@ -2,6 +2,12 @@
 
 Split array references in two with compile-time size validation.
 
+## This crate requires nightly!
+
+Unstable features used:
+
+- [`#![feature(generic_const_exprs)]`](https://github.com/rust-lang/rust/issues/76560)
+
 # Examples
 
 The sizes of the two halves can usually be inferred:
