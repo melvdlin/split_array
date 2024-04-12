@@ -11,5 +11,3 @@ keywords = ["array", "split", "compile-time", "validation"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-bool_traits = "0.1.1"

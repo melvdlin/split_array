@@ -35,8 +35,6 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
-use bool_traits::True;
-
 /// Split array references in two with compile-time size validation.
 pub trait SplitArray<const LEN: usize> {
     /// The result of a split.
@@ -47,14 +45,14 @@ pub trait SplitArray<const LEN: usize> {
     /// The sizes of the halves are validated at compile time.
     fn split_arr<const LEFT: usize>(&self) -> (&Self::Output<LEFT>, &Self::Output<{ LEN - LEFT }>)
     where
-        (): True<{ LEFT <= LEN }>;
+        [(); LEN - LEFT]:;
 
     /// Mutable version of [`Self::split_arr`]
     fn split_arr_mut<const LEFT: usize>(
         &mut self,
     ) -> (&mut Self::Output<LEFT>, &mut Self::Output<{ LEN - LEFT }>)
     where
-        (): True<{ LEFT <= LEN }>;
+        [(); LEN - LEFT]:;
 }
 
 /// Raw version of [`SplitArray`].
@@ -72,7 +70,7 @@ pub trait SplitArrayRaw<const LEN: usize> {
         self,
     ) -> (Self::Output<LEFT>, Self::Output<{ LEN - LEFT }>)
     where
-        (): True<{ LEFT <= LEN }>;
+        [(); LEN - LEFT]:;
 }
 
 /// Raw mutable version of [`SplitArray`].
@@ -89,7 +87,7 @@ pub trait SplitArrayRawMut<const LEN: usize> {
         self,
     ) -> (Self::Output<LEFT>, Self::Output<{ LEN - LEFT }>)
     where
-        (): True<{ LEFT <= LEN }>;
+        [(); LEN - LEFT]:;
 }
 
 impl<T, const LEN: usize> SplitArray<LEN> for [T; LEN] {
@@ -98,7 +96,7 @@ impl<T, const LEN: usize> SplitArray<LEN> for [T; LEN] {
     #[inline]
     fn split_arr<const LEFT: usize>(&self) -> (&[T; LEFT], &[T; LEN - LEFT])
     where
-        (): True<{ LEFT <= LEN }>,
+        [(); LEN - LEFT]:,
     {
         split_arr(self)
     }
@@ -106,7 +104,7 @@ impl<T, const LEN: usize> SplitArray<LEN> for [T; LEN] {
     #[inline]
     fn split_arr_mut<const LEFT: usize>(&mut self) -> (&mut [T; LEFT], &mut [T; LEN - LEFT])
     where
-        (): True<{ LEFT <= LEN }>,
+        [(); LEN - LEFT]:,
     {
         split_arr_mut(self)
     }
@@ -117,7 +115,7 @@ impl<T, const LEN: usize> SplitArrayRaw<LEN> for *const [T; LEN] {
 
     unsafe fn split_arr_raw<const LEFT: usize>(self) -> (*const [T; LEFT], *const [T; LEN - LEFT])
     where
-        (): True<{ LEFT <= LEN }>,
+        [(); LEN - LEFT]:,
     {
         unsafe { split_arr_raw(self) }
     }
@@ -128,7 +126,7 @@ impl<T, const LEN: usize> SplitArrayRawMut<LEN> for *mut [T; LEN] {
 
     unsafe fn split_arr_raw_mut<const LEFT: usize>(self) -> (*mut [T; LEFT], *mut [T; LEN - LEFT])
     where
-        (): True<{ LEFT <= LEN }>,
+        [(); LEN - LEFT]:,
     {
         unsafe { split_arr_raw_mut(self) }
     }
@@ -142,7 +140,7 @@ pub const fn split_arr<const LEFT: usize, const N: usize, T>(
     arr: &[T; N],
 ) -> (&[T; LEFT], &[T; N - LEFT])
 where
-    (): True<{ LEFT <= N }>,
+    [(); N - LEFT]:,
 {
     unsafe {
         let (left, right) = split_arr_raw(arr);
@@ -156,7 +154,7 @@ pub fn split_arr_mut<const LEFT: usize, const N: usize, T>(
     arr: &mut [T; N],
 ) -> (&mut [T; LEFT], &mut [T; N - LEFT])
 where
-    (): True<{ LEFT <= N }>,
+    [(); N - LEFT]:,
 {
     unsafe {
         let (left, right) = split_arr_raw_mut(arr);
@@ -173,7 +171,7 @@ pub const unsafe fn split_arr_raw<const LEFT: usize, const N: usize, T>(
     arr: *const [T; N],
 ) -> (*const [T; LEFT], *const [T; N - LEFT])
 where
-    (): True<{ LEFT <= N }>,
+    [(); N - LEFT]:,
 {
     let left = arr.cast::<T>();
     let right = unsafe { left.add(LEFT) };
@@ -190,7 +188,7 @@ pub const unsafe fn split_arr_raw_mut<const LEFT: usize, const N: usize, T>(
     arr: *mut [T; N],
 ) -> (*mut [T; LEFT], *mut [T; N - LEFT])
 where
-    (): True<{ LEFT <= N }>,
+    [(); N - LEFT]:,
 {
     let left = arr as *mut T;
     let right = unsafe { left.add(LEFT) };
