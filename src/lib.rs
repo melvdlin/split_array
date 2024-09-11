@@ -18,7 +18,7 @@
 //! use split_array::SplitArray;
 //!
 //! let array: [usize; 5] = [0, 1, 2, 3, 4];
-//! let (left, right) = array.split_arr::<2>();
+//! let (left, right) = array.split_arr::<3>();
 //! assert_eq!([0, 1, 2], *left);
 //! assert_eq!([3, 4], *right);
 //! ```
